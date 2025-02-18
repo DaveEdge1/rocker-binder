@@ -1,22 +1,28 @@
-  name: Push into main branch
-  on:
-    workflow_dispatch:
+name: Docker Build And Push To Docker Hub
 
-  jobs:
-    context:
-      runs-on: ubuntu-latest
-      steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+on:
+  push:
+    branches:
+      - master
 
-      - name: Build
-        id: build
-        uses: cloudposse/github-action-docker-build-push@main
+jobs:
+  build:
+    name: Build Spring Boot
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git Checkout Code
+        uses: actions/checkout@v1
+        id: git_checkout
+
+      - name: Build Docker Image
+        id: buildAndPushImage
+        uses: abhishek-070/docker-image-build-push-action@v1.0
         with:
-          registry: registry.hub.docker.com
-          organization: "${{ github.event.repository.owner.login }}"
-          repository: "${{ github.event.repository.name }}"
-          login: "${{ secrets.DOCKERHUB_USERNAME }}"
-          password: "${{ secrets.DOCKERHUB_PASSWORD }}"
-          platforms: linux/amd64,linux/arm64
-          
+          registry_url: 'docker.io'
+          repository_name: 'rocker-binder'
+          user_name: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image_version: 'v1.0'
+          docker_file: '.'
+      - name: Get pre step result output image_pull_url
+        run: echo "The time was ${{ steps.buildAndPushImage.outputs.image_pull_url }}"
