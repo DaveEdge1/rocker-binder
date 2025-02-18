@@ -1,9 +1,7 @@
 name: Docker Build And Push To Docker Hub
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
 
 jobs:
   build:
